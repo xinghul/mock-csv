@@ -2,35 +2,39 @@
   "use strict";
 
   var mock       = require("mock-data")
-  ,   syncStream = require("sync-streams")
+  ,   SyncStream = require("sync-streams")
   ,   stream     = require("stream")
-  ,   fs         = require("fs");
+  ,   fs         = require("fs")
+  ,   util       = require("util");
 
 
-  var rInt  = mock.generate({type: "integer", count: 10})
-  ,   rDate = mock.generate({type: "date", count: 10})
-  ,   rIpv4 = mock.generate({type: "ipv4", count: 10});
+  var rInt       = mock.generate({type: "integer", count: 5})
+  ,   rDate      = mock.generate({type: "date", count: 10})
+  ,   rIpv4      = mock.generate({type: "ipv4", count: 10});
 
-  var writeStream = fs.createWriteStream("./output.csv", {objectMode: true})
-  ,   readStream  = new stream.Readable();
+  var syncStream = new SyncStream([rInt, rDate, rIpv4]);
+
+  // syncStream.add(rInt).add(rDate).add(rIpv4);
+
+  var Writable = require("stream").Writable;
+
+  function WriteStream(options) {
+    options = options || {};
+    options.objectMode = true;
+
+    Writable.call(this, options);
+  };
+  util.inherits(WriteStream, Writable);
+
+  WriteStream.prototype._write = function(chunk, encoding, __callback) {
+    console.log("#", chunk.join(","));
+    __callback();
+  };
 
 
-  syncStream.add(rInt).add(rDate).add(rIpv4);
 
-  syncStream.pipe(readStream);
+  var writeStream = new WriteStream();
 
-  readStream.on("data", function (data) {
-    console.log(data);
-  });
+  syncStream.pipe(writeStream);
 
-  // syncStream.on("data", function (data) {
-  //   console.log(data);
-  //   this.write(data.join(',') + "\n");
-  // });
-  // syncStream.on("end", function() {
-  //   console.log("end");
-  // });
-  // syncStream.on("error", function (error) {
-  //
-  // });
 }();
