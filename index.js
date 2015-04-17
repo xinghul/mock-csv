@@ -7,34 +7,16 @@
   ,   fs         = require("fs")
   ,   util       = require("util");
 
+  var Transform  = stream.Transform || require("readable-stream").Transform;
 
-  var rInt       = mock.generate({type: "integer", count: 5})
-  ,   rDate      = mock.generate({type: "date", count: 10})
-  ,   rIpv4      = mock.generate({type: "ipv4", count: 10});
+  var types = ["integer", "ipv4", "boolean"];
 
-  var syncStream = new SyncStream([rInt, rDate, rIpv4]);
+  var Generator = require("./lib/generator")
+  ,   Parser    = require("./lib/parser");
 
-  // syncStream.add(rInt).add(rDate).add(rIpv4);
+  var source = new Generator(10, types)
+  ,   parser = new Parser(types.join(','));
 
-  var Writable = require("stream").Writable;
-
-  function WriteStream(options) {
-    options = options || {};
-    options.objectMode = true;
-
-    Writable.call(this, options);
-  };
-  util.inherits(WriteStream, Writable);
-
-  WriteStream.prototype._write = function(chunk, encoding, __callback) {
-    console.log("#", chunk.join(","));
-    __callback();
-  };
-
-
-
-  var writeStream = new WriteStream();
-
-  syncStream.pipe(writeStream);
+  source.pipe(parser).pipe(process.stdout);
 
 }();
