@@ -3,20 +3,28 @@
 
   var mock       = require("mock-data")
   ,   SyncStream = require("sync-streams")
-  ,   stream     = require("stream")
   ,   fs         = require("fs")
+  ,   path       = require("path")
   ,   util       = require("util");
 
-  var Transform  = stream.Transform || require("readable-stream").Transform;
-
-  var types = ["integer", "ipv4", "boolean"];
+  var args  = require("./util/argv")(process.argv)
+  ,   count = args.rows
+  ,   types = args.types
+  ,   oFile = args.file ? path.resolve(args.file) : null;
 
   var Generator = require("./lib/generator")
   ,   Parser    = require("./lib/parser");
 
-  var source = new Generator(10, types)
+  var source = new Generator(count, types)
   ,   parser = new Parser(types.join(','));
 
-  source.pipe(parser).pipe(process.stdout);
+  var output;
+  if (oFile) {
+    output = fs.createWriteStream(oFile);
+  } else {
+    output = process.stdout;
+  }
+
+  source.pipe(parser).pipe(output);
 
 }();

@@ -1,6 +1,6 @@
 {
   "name": "mock-csv",
-  "version": "1.0.0",
+  "version": "2.1.0",
   "description": "using random data to generage csv file.",
   "main": "index.js",
   "scripts": {
@@ -22,6 +22,7 @@
   },
   "homepage": "https://github.com/xinghul/mock-csv",
   "dependencies": {
+    "commander": "^2.8.0",
     "mock-data": "^1.3.6",
     "readable-stream": "^1.0.33",
     "sync-streams": "^1.3.0"
